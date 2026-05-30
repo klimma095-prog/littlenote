@@ -8,113 +8,166 @@
 
 <style>
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    background:#f5f5f5;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
-    color:#222;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+background:#0f172a;
+color:white;
+min-height:100vh;
+overflow-x:hidden;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
 }
 
 .container{
-    max-width:750px;
-    width:100%;
+max-width:850px;
+margin:auto;
+padding:20px;
 }
 
-.envelope-box{
-    text-align:center;
+.welcome{
+min-height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
 }
 
 .envelope{
-    font-size:100px;
-    animation:float 2s ease-in-out infinite;
+font-size:110px;
+animation:float 3s ease-in-out infinite;
 }
 
 @keyframes float{
-    0%,100%{
-        transform:translateY(0);
-    }
-    50%{
-        transform:translateY(-10px);
-    }
+0%,100%{
+transform:translateY(0);
+}
+50%{
+transform:translateY(-15px);
+}
 }
 
 .btn{
-    margin-top:20px;
-    padding:14px 24px;
-    border:none;
-    border-radius:12px;
-    background:#111;
-    color:white;
-    cursor:pointer;
-    font-size:15px;
+margin-top:20px;
+padding:14px 24px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+font-size:15px;
+background:white;
+color:#111;
+font-weight:600;
 }
 
 .card{
-    display:none;
-    background:white;
-    padding:35px;
-    border-radius:24px;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-    line-height:1.9;
-    animation:fadeUp .8s ease;
+display:none;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+padding:30px;
+border-radius:24px;
+line-height:1.9;
+animation:fadeIn 1s ease;
 }
 
-@keyframes fadeUp{
-    from{
-        opacity:0;
-        transform:translateY(20px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
 }
 
 .title{
-    text-align:center;
-    margin-bottom:20px;
+text-align:center;
+margin-bottom:20px;
+}
+
+.slider{
+margin-top:30px;
+position:relative;
+overflow:hidden;
+border-radius:20px;
+}
+
+.slides{
+display:flex;
+transition:transform .8s ease;
+}
+
+.slides img{
+width:100%;
+flex-shrink:0;
+height:500px;
+object-fit:cover;
+}
+
+.dots{
+display:flex;
+justify-content:center;
+margin-top:12px;
+gap:8px;
+}
+
+.dot{
+width:10px;
+height:10px;
+border-radius:50%;
+background:#666;
+}
+
+.dot.active{
+background:white;
 }
 
 .extra{
-    display:none;
-    margin-top:20px;
-    padding:16px;
-    border-radius:12px;
-    background:#f8f8f8;
-    animation:fadeUp .5s ease;
+display:none;
+margin-top:25px;
+padding:18px;
+border-radius:16px;
+background:rgba(255,255,255,0.08);
+animation:fadeIn .5s ease;
+text-align:center;
 }
 
-.center{
-    text-align:center;
+@media(max-width:768px){
+
+.slides img{
+height:420px;
 }
 
-.small{
-    color:#666;
-    font-size:14px;
+.card{
+padding:22px;
+}
 }
 </style>
 </head>
 
 <body>
 
+<canvas id="particles"></canvas>
+
 <div class="container">
 
-<div id="welcome" class="envelope-box">
+<div id="welcome" class="welcome">
 
 <div class="envelope">📩</div>
 
 <h2>Untuk Mita</h2>
 
-<p class="small">
+<p style="opacity:.8;margin-top:8px">
 Ada sesuatu yang pengen aku sampaikan buat kamu hari ini.
 </p>
 
@@ -181,24 +234,40 @@ Stay pretty, stay genuine,
 and please don't lose that smile I lowkey like so much 🤍
 </p>
 
-<p class="center">
+<p style="text-align:center;margin-top:15px;">
 <b>Happy birthday to my favorite notification 🫶</b>
 </p>
 
-<div class="center">
+<div class="slider">
+
+<div class="slides" id="slides">
+
+<img src="foto1.jpg">
+<img src="foto2.jpg">
+<img src="foto3.jpg">
+<img src="foto4.jpg">
+<img src="foto5.jpg">
+
+</div>
+
+</div>
+
+<div class="dots">
+<div class="dot active"></div>
+<div class="dot"></div>
+<div class="dot"></div>
+<div class="dot"></div>
+<div class="dot"></div>
+</div>
+
 <button class="btn" onclick="showExtra()">
 Satu hal lagi...
 </button>
-</div>
 
 <div id="extra" class="extra">
 
 <p>
 Dan aku masih pengen terus bareng-bareng sama kamu untuk ke depannya.
-</p>
-
-<p>
-Sesimpel itu sih.
 </p>
 
 🤍
@@ -212,13 +281,75 @@ Sesimpel itu sih.
 <script>
 
 function openLetter(){
-    document.getElementById("welcome").style.display="none";
-    document.getElementById("letter").style.display="block";
+document.getElementById("welcome").style.display="none";
+document.getElementById("letter").style.display="block";
 }
 
 function showExtra(){
-    document.getElementById("extra").style.display="block";
+document.getElementById("extra").style.display="block";
 }
+
+const slides=document.getElementById("slides");
+const dots=document.querySelectorAll(".dot");
+
+let current=0;
+
+setInterval(()=>{
+
+current=(current+1)%5;
+
+slides.style.transform=
+`translateX(-${current*100}%)`;
+
+dots.forEach(dot=>dot.classList.remove("active"));
+dots[current].classList.add("active");
+
+},3000);
+
+const canvas=document.getElementById("particles");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let particles=[];
+
+for(let i=0;i<80;i++){
+
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2+1,
+dx:(Math.random()-0.5)*0.4,
+dy:(Math.random()-0.5)*0.4
+});
+
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach(p=>{
+
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fillStyle="rgba(255,255,255,.8)";
+ctx.fill();
+
+p.x+=p.dx;
+p.y+=p.dy;
+
+if(p.x<0||p.x>canvas.width)p.dx*=-1;
+if(p.y<0||p.y>canvas.height)p.dy*=-1;
+
+});
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
 
 </script>
 
